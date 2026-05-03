@@ -1,0 +1,56 @@
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+xcuserdata/
+*.hmap
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# CocoaPods (legacy)
+Pods/
+
+# Carthage (legacy)
+Carthage/Build/
+
+# Tuist
+Tuist/Dependencies/
+Derived/
+*.xcodeproj
+*.xcworkspace
+!KovyoApp.xcodeproj
+!KovyoApp.xcworkspace
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Secrets
+*.mobileprovision
+*.cer
+*.p12
+*.p8
+.env
+.env.*
+!.env.example
+secrets/
