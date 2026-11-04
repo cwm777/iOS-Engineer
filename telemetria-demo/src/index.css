@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #f0f1f4;
+  --border: #e2e4e9;
+  --text: #1a1d23;
+  --text-2: #4b5160;
+  --text-3: #7c8291;
+  --grid: #e8eaef;
+
+  --status-online: #15803d;
+  --status-online-soft: #dcfce7;
+  --status-degraded: #b45309;
+  --status-degraded-soft: #fef3c7;
+  --status-offline: #b91c1c;
+  --status-offline-soft: #fee2e2;
+  --status-parked: #6b7280;
+  --status-parked-soft: #e5e7eb;
+  --status-network: #6d28d9;
+  --status-network-soft: #ede9fe;
+
+  --series-down: #1d4ed8;
+  --series-up: #0e7490;
+  --series-latency: #7c3aed;
+  --series-loss: #be123c;
+  --series-battery: #047857;
+  --series-converter: #d97706;
+  --series-temp: #c2410c;
+  --series-vibration: #4338ca;
+  --series-ignition: #64748b;
+
+  --tenant-primary: #0b5fff;
+  --tenant-secondary: #0a2a66;
+  --tenant-on-primary: #ffffff;
+}
+
+.dark {
+  --bg: #0f1216;
+  --surface: #171b21;
+  --surface-2: #1f242c;
+  --border: #2b313b;
+  --text: #e8eaf0;
+  --text-2: #b4bac6;
+  --text-3: #7f8797;
+  --grid: #262c36;
+
+  --status-online: #4ade80;
+  --status-online-soft: #14532d;
+  --status-degraded: #fbbf24;
+  --status-degraded-soft: #78350f;
+  --status-offline: #f87171;
+  --status-offline-soft: #7f1d1d;
+  --status-parked: #9ca3af;
+  --status-parked-soft: #374151;
+  --status-network: #a78bfa;
+  --status-network-soft: #4c1d95;
+
+  --series-down: #60a5fa;
+  --series-up: #22d3ee;
+  --series-latency: #a78bfa;
+  --series-loss: #fb7185;
+  --series-battery: #34d399;
+  --series-converter: #fbbf24;
+  --series-temp: #fb923c;
+  --series-vibration: #818cf8;
+  --series-ignition: #94a3b8;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-tenant: var(--tenant-primary);
+  --color-tenant-2: var(--tenant-secondary);
+  --color-on-tenant: var(--tenant-on-primary);
+  --color-online: var(--status-online);
+  --color-degraded: var(--status-degraded);
+  --color-offline: var(--status-offline);
+  --color-parked: var(--status-parked);
+  --color-network: var(--status-network);
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaflet-container {
+  background: var(--surface-2);
+  font-family: var(--font-sans);
+}
+
+.dark .leaflet-tile {
+  filter: brightness(0.7) contrast(1.1) saturate(0.6);
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+
+.cluster-icon {
+  background: transparent;
+  border: none;
+}
+
+.cluster-pin {
+  width: 34px;
+  height: 34px;
+  background: var(--surface);
+  border: 3px solid var(--text-3);
+  border-radius: 9999px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--grid);
+}
+
+.recharts-text {
+  fill: var(--text-3);
+  font-size: 11px;
+}
+
+.recharts-default-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px;
+  color: var(--text) !important;
+  font-size: 12px;
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
