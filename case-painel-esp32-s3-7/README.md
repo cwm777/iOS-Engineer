@@ -8,8 +8,8 @@ Caixa impressa em 3D para o painel de voos (Waveshare ESP32-S3-Touch-LCD-7, 800�
 
 | Arquivo | O que é | Tamanho | Como imprimir |
 |---|---|---|---|
-| `caixa.stl` | Corpo da caixa | 171,3 × 103,2 × 30 mm | Fundo na mesa (como está no arquivo), sem suporte |
-| `base_porta_retrato.stl` | Base simples, berço inclinado 15° | 88 × 39 × 110 mm | Deitada sobre o perfil (como está no arquivo), sem suporte |
+| `caixa.stl` | Corpo da caixa | 171,3 × 103,2 × 23,5 mm | Fundo na mesa (como está no arquivo), sem suporte |
+| `base_porta_retrato.stl` | Base simples, berço inclinado 15° | 82 × 39 × 110 mm | Deitada sobre o perfil (como está no arquivo), sem suporte |
 | `base_monitor.stl` | Base tipo monitor, inclinada 10° | 114 × 55 × 110 mm | Deitada sobre o perfil (como está no arquivo), sem suporte |
 
 Sugestão: PLA ou PETG, camada 0,2 mm, 3 perímetros, 15–20 % de preenchimento.
@@ -18,7 +18,7 @@ Sugestão: PLA ou PETG, camada 0,2 mm, 3 perímetros, 15–20 % de preenchimento
 
 1. Passe o cabo USB-C pelo rasgo lateral e ligue na placa.
 2. Coloque o painel pela frente da caixa. As 4 abas roscadas da chapa traseira apoiam nos 4 postes.
-3. Por trás, coloque 4 parafusos nos rebaixos (6,5 mm de diâmetro, 17 mm de profundidade).
+3. Por trás, coloque 4 parafusos nos rebaixos (6,5 mm de diâmetro, 13,5 mm de profundidade).
    - Parafuso curto: **M3×6** (as abas são M3, conforme o desenho oficial).
      Não use parafuso mais comprido: ele pode encostar no LCD.
    - No fundo de cada rebaixo há uma película de 0,24 mm que permite imprimir sem suporte.
@@ -38,25 +38,26 @@ Do desenho oficial da Waveshare (vista traseira):
 - Abas de cima a 13,64 mm da borda de cima (lado da antena); abas de baixo a 18,31 mm da borda de baixo
   (65,65 mm entre as fileiras — a fixação **não** é simétrica na vertical)
 
-Informadas:
+Medidas no painel:
 
-- Componentes atrás do painel: 20 mm (a caixa deixa 20,5 mm)
+- Do vidro da tela até o topo do componente mais alto: 20 mm (`ALTURA_TOTAL`)
+- Espessura do módulo LCD, do vidro até a chapa traseira: 4 mm (`PAINEL_ESP`)
 - Porta USB-C usada: a "USB", começando a 30,5 mm da borda de cima (centro ≈ 35 mm)
 
 Estimadas (não constam no desenho oficial — conferir com paquímetro):
 
 | Parâmetro no script | Valor | O que é |
 |---|---|---|
-| `PAINEL_ESP` | 7,0 mm | Espessura do módulo LCD, do vidro até a chapa traseira |
 | `ABA_H` | 2,5 mm | Altura das abas roscadas acima da chapa traseira |
 | `USB_BOCA_X` | 33 mm | Até onde a janela traseira avança a partir da borda esquerda |
 
 ## Espessura
 
-Profundidade da caixa = fundo (2,0) + `COMP_H` + folga (0,5) + `PAINEL_ESP` + rebaixo da tela (0,5) = **30 mm**.
+Profundidade da caixa = fundo (2,0) + folga (1,0) + `ALTURA_TOTAL` (20) + rebaixo da tela (0,5) = **23,5 mm**.
 
-As paredes e folgas já estão no mínimo razoável para impressão, então a caixa só fica mais fina se `COMP_H` ou
-`PAINEL_ESP` forem menores do que os valores usados: cada 1 mm a menos nessas medidas é 1 mm a menos na caixa.
+A posição do painel em profundidade é definida pelos postes, que encostam nas abas. Com `ABA_H` = 2,5 mm a tela fica
+0,5 mm abaixo da borda e sobra 1 mm atrás dos componentes. Se as abas forem mais altas, a tela avança na mesma
+diferença; se forem mais baixas, a tela recua e a folga atrás diminui (uma arruela entre o poste e a aba compensa).
 
 ## Ajustar e gerar de novo
 

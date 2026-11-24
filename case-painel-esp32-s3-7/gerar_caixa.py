@@ -26,10 +26,11 @@ FURO_DX = 126.20        # distancia horizontal entre as abas M3 (19,76 de cada l
 ABA_TOPO = 13.64        # abas de cima: distancia ate a borda de CIMA (lado da antena)
 ABA_BAIXO = 18.31       # abas de baixo: distancia ate a borda de BAIXO (lado do flat cable)
                         # (65,65 mm entre as duas fileiras)
-COMP_H = 20.0           # altura dos componentes atras da chapa traseira (informado: 2 cm)
+ALTURA_TOTAL = 20.0     # do VIDRO da tela ate o topo do componente mais alto (medido: 2 cm)
 
-# --- medidas ASSUMIDAS (conferir com paquimetro; ajustar e gerar de novo) ---
-PAINEL_ESP = 7.0        # espessura do modulo LCD (vidro ate a chapa traseira)
+PAINEL_ESP = 4.0        # espessura do modulo LCD, vidro ate a chapa traseira (medido: 0,4 cm)
+
+# --- medida ASSUMIDA (conferir com paquimetro; ajustar e gerar de novo) ---
 ABA_H = 2.5             # altura das abas roscadas acima da chapa traseira
 FURO_D = 3.4            # furo passante do parafuso M3
 
@@ -47,7 +48,7 @@ USB_BOCA_X = 33.0       # ate onde a janela traseira avanca a partir da borda es
 FOLGA = 0.4             # folga por lado entre painel e caixa
 PAREDE = 2.4            # paredes laterais
 FUNDO = 2.0             # parede do fundo
-FOLGA_COMP = 0.5        # folga extra atras dos componentes
+FOLGA_COMP = 1.0        # folga extra atras dos componentes (cobre erro de medida)
 REBAIXO_TELA = 0.5      # quanto a tela fica abaixo da borda frontal
 RAIO_EXT = 4.0          # raio dos cantos externos
 POSTE_D = 10.0          # diametro dos postes (a placa passa a ~7 mm do centro do furo)
@@ -69,9 +70,9 @@ CAV_L = PAINEL_L + 2 * FOLGA
 CAV_A = PAINEL_A + 2 * FOLGA
 EXT_L = CAV_L + 2 * PAREDE
 EXT_A = CAV_A + 2 * PAREDE
-Z_CHAPA = FUNDO + COMP_H + FOLGA_COMP          # plano da chapa traseira do painel
+Z_TELA = FUNDO + FOLGA_COMP + ALTURA_TOTAL      # face da tela
+Z_CHAPA = Z_TELA - PAINEL_ESP                  # plano da chapa traseira do painel
 Z_ABA = Z_CHAPA - ABA_H                        # topo dos postes (encosta nas abas)
-Z_TELA = Z_CHAPA + PAINEL_ESP                  # face da tela
 PROF = Z_TELA + REBAIXO_TELA                   # profundidade total da caixa
 POSTES = [(sx * FURO_DX / 2, y) for sx in (-1, 1)
           for y in (PAINEL_A / 2 - ABA_TOPO, -PAINEL_A / 2 + ABA_BAIXO)]
@@ -132,7 +133,7 @@ def caixa():
     # acesso USB: rasgo na parede esquerda + janela no fundo (formato em "L")
     y1 = PAINEL_A / 2 - USB_TOPO_MAX
     y2 = PAINEL_A / 2 - USB_TOPO_MIN
-    z_top = Z_CHAPA - 3.0
+    z_top = Z_CHAPA - 2.0
     ch = 6.0
     rasgo = (cq.Workplane("YZ").workplane(offset=-EXT_L / 2 - 1)
              .polyline([(y1, -1), (y2, -1), (y2, z_top - ch), (y2 - ch, z_top),
@@ -264,7 +265,7 @@ def painel_ref():
         lcd = lcd.union(aba)
     # placa (estimado pelo desenho oficial): ~27 a 132 mm da borda esquerda,
     # de ~24,6 mm acima da borda de baixo ate ~5 mm da borda de cima
-    pcb = (cq.Workplane("XY").workplane(offset=Z_CHAPA - 8).center(-3.4, 9.8).rect(105, 68).extrude(1.6))
+    pcb = (cq.Workplane("XY").workplane(offset=Z_CHAPA - 4).center(-3.4, 9.8).rect(105, 68).extrude(1.6))
     return lcd, pcb
 
 
