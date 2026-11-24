@@ -18,36 +18,40 @@ import os
 import cadquery as cq
 
 # --------------------------------------------------------------------------
-# MEDIDAS DO PAINEL (do desenho a mao)
+# MEDIDAS DO PAINEL (desenho oficial da Waveshare, vista traseira)
 # --------------------------------------------------------------------------
-PAINEL_L = 166.0        # largura total do painel
-PAINEL_A = 98.0         # altura total do painel
-FURO_DX = 126.0         # distancia horizontal entre furos de fixacao
-FURO_DY = 70.0          # distancia vertical entre furos de fixacao
-COMP_H = 20.0           # altura dos componentes atras do painel (informado: 2 cm)
+PAINEL_L = 165.72       # largura total da chapa traseira
+PAINEL_A = 97.60        # altura total da chapa traseira
+FURO_DX = 126.20        # distancia horizontal entre as abas M3 (19,76 de cada lado)
+ABA_TOPO = 13.64        # abas de cima: distancia ate a borda de CIMA (lado da antena)
+ABA_BAIXO = 18.31       # abas de baixo: distancia ate a borda de BAIXO (lado do flat cable)
+                        # (65,65 mm entre as duas fileiras)
+COMP_H = 20.0           # altura dos componentes atras da chapa traseira (informado: 2 cm)
 
 # --- medidas ASSUMIDAS (conferir com paquimetro; ajustar e gerar de novo) ---
 PAINEL_ESP = 7.0        # espessura do modulo LCD (vidro ate a chapa traseira)
 ABA_H = 2.5             # altura das abas roscadas acima da chapa traseira
-FURO_D = 3.6            # furo passante do parafuso (serve M3 e M2.5)
+FURO_D = 3.4            # furo passante do parafuso M3
 
 # --- porta USB (olhando a tela de frente, as portas ficam viradas p/ a ESQUERDA)
-USB_TOPO_MIN = 26.0     # inicio do rasgo, medido a partir da borda de CIMA do painel
-USB_TOPO_MAX = 62.0     # fim do rasgo (cobre as duas USB-C: "USB" e "UART1")
-USB_BOCA_X = 37.0       # ate onde a janela traseira avanca a partir da borda esquerda
-                        # (a boca das USB fica ~31 mm para dentro da borda)
+# porta usada: a USB-C "USB" (ao lado do modulo ESP32), que comeca a 30,5 mm da borda
+# de cima e tem ~9 mm de largura (centro ~35 mm).
+USB_TOPO_MIN = 24.0     # inicio do rasgo, medido a partir da borda de CIMA do painel
+USB_TOPO_MAX = 45.0     # fim do rasgo
+USB_BOCA_X = 33.0       # ate onde a janela traseira avanca a partir da borda esquerda
+                        # (a boca da USB fica ~25-30 mm para dentro da borda)
 
 # --------------------------------------------------------------------------
 # PARAMETROS DA CAIXA
 # --------------------------------------------------------------------------
-FOLGA = 0.5             # folga por lado entre painel e caixa
-PAREDE = 3.0            # paredes laterais
-FUNDO = 3.0             # parede do fundo
-FOLGA_COMP = 2.0        # folga extra atras dos componentes
-REBAIXO_TELA = 1.0      # quanto a tela fica abaixo da borda frontal
-RAIO_EXT = 6.0          # raio dos cantos externos
-POSTE_D = 11.0          # diametro dos postes de fixacao
-REBAIXO_D = 7.0         # rebaixo para cabeca do parafuso / chave
+FOLGA = 0.4             # folga por lado entre painel e caixa
+PAREDE = 2.4            # paredes laterais
+FUNDO = 2.0             # parede do fundo
+FOLGA_COMP = 0.5        # folga extra atras dos componentes
+REBAIXO_TELA = 0.5      # quanto a tela fica abaixo da borda frontal
+RAIO_EXT = 4.0          # raio dos cantos externos
+POSTE_D = 10.0          # diametro dos postes (a placa passa a ~7 mm do centro do furo)
+REBAIXO_D = 6.5         # rebaixo para cabeca do parafuso M3 / chave
 PISO_POSTE = 3.0        # espessura de plastico sob a cabeca do parafuso
 MEMBRANA = 0.24         # camada de sacrificio p/ imprimir o rebaixo sem suporte
 VENTILACAO = True
@@ -69,7 +73,8 @@ Z_CHAPA = FUNDO + COMP_H + FOLGA_COMP          # plano da chapa traseira do pain
 Z_ABA = Z_CHAPA - ABA_H                        # topo dos postes (encosta nas abas)
 Z_TELA = Z_CHAPA + PAINEL_ESP                  # face da tela
 PROF = Z_TELA + REBAIXO_TELA                   # profundidade total da caixa
-POSTES = [(sx * FURO_DX / 2, sy * FURO_DY / 2) for sx in (-1, 1) for sy in (-1, 1)]
+POSTES = [(sx * FURO_DX / 2, y) for sx in (-1, 1)
+          for y in (PAINEL_A / 2 - ABA_TOPO, -PAINEL_A / 2 + ABA_BAIXO)]
 V_FURO_BASE = BASE_FURO_Y + EXT_A / 2          # altura dos furos da base acima do fundo externo
 
 LARG_BASE = 110.0       # largura (em X) das duas bases
@@ -82,7 +87,7 @@ FOLGA_BERCO = 0.6
 def caixa():
     corpo = cq.Workplane("XY").rect(EXT_L, EXT_A).extrude(PROF)
     corpo = corpo.edges("|Z").fillet(RAIO_EXT)
-    corpo = corpo.faces(">Z").edges().fillet(1.5)
+    corpo = corpo.faces(">Z").edges().fillet(1.2)
     corpo = corpo.faces("<Z").edges().chamfer(1.0)
 
     cav = (cq.Workplane("XY").workplane(offset=FUNDO).rect(CAV_L, CAV_A)
@@ -257,8 +262,9 @@ def painel_ref():
     for (x, y) in POSTES:
         aba = cq.Workplane("XY").workplane(offset=Z_ABA).center(x, y).rect(12, 8).extrude(ABA_H)
         lcd = lcd.union(aba)
-    # placa: ~30 mm da borda esquerda, ~104 x 71 mm (estimado pela foto)
-    pcb = (cq.Workplane("XY").workplane(offset=Z_CHAPA - 8).center(-1, 9.5).rect(104, 71).extrude(1.6))
+    # placa (estimado pelo desenho oficial): ~27 a 132 mm da borda esquerda,
+    # de ~24,6 mm acima da borda de baixo ate ~5 mm da borda de cima
+    pcb = (cq.Workplane("XY").workplane(offset=Z_CHAPA - 8).center(-3.4, 9.8).rect(105, 68).extrude(1.6))
     return lcd, pcb
 
 
