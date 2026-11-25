@@ -34,7 +34,8 @@ Insertos a quente M3 × 5 (comprimento) × 4,5 (diâmetro externo). Os furos tê
 Parafusos:
 
 - 4 × M3×6 — tampa nas abas roscadas do painel. Não use mais comprido: pode encostar no LCD.
-- 4 × M3×8 ou M3×10 de cabeça chata (escareada) — tampa na moldura.
+- 4 × M3×8 ou M3×10 de cabeça abaulada (panela) — tampa na moldura. Os furos não são escareados: ficam a 3,75 mm da
+  borda e um escareado não deixaria parede para imprimir. As cabeças ficam ~2,5 mm para fora, nos cantos de trás.
 - 2 × M3×10 ou M3×12 — base na tampa (opcional). Na versão sem inserto, use M3×12 com 2 porcas M3.
 
 ## Montagem
@@ -46,7 +47,7 @@ Parafusos:
 5. Parafuse os 4 M3×6 nos rebaixos da tampa (6,5 mm de diâmetro, 13,5 mm de profundidade).
    No fundo de cada rebaixo há uma película de 0,24 mm que permite imprimir sem suporte; fure com o próprio
    parafuso ou com uma broca de 3,5 mm.
-6. Parafuse os 4 parafusos de cabeça chata dos cantos.
+6. Parafuse os 4 parafusos de cabeça abaulada dos cantos.
 7. Base: 2 parafusos M3 por trás. A base porta-retrato também funciona só encaixada, sem parafusos.
 
 O recorte da USB continua na tampa, então dá para ligar e desligar o carregador com a caixa fechada.

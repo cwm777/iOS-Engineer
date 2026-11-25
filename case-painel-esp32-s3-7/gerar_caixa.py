@@ -208,11 +208,11 @@ def tampa(inserto=False):
             hexa = (cq.Workplane("XY").workplane(offset=Z_TAMPA - boss_h - 1).center(-x, y)
                     .polygon(6, PORCA_AF / math.cos(math.pi / 6)).extrude(PORCA_H + 1))
             t = t.cut(hexa)
-    # 4 parafusos de fechamento: furo passante + escareado por fora
+    # 4 parafusos de fechamento: so o furo passante, para parafuso de cabeca abaulada.
+    # Sem escareado: o furo fica a 3,75 mm da borda e um escareado de 6,2 mm deixava
+    # menos de 0,6 mm de parede no canto, que nao imprime.
     for (x, y) in FECHO:
         t = t.cut(cil(x, y, Z_TAMPA - 1, PROF + 1, FURO_D))
-        cone = cq.Solid.makeCone(3.1, 1.7, 1.4, pnt=cq.Vector(-x, y, PROF + 0.01), dir=cq.Vector(0, 0, -1))
-        t = t.cut(cq.Workplane("XY").add(cone))
     # janela de acesso a USB (continua o rasgo da moldura)
     t = t.cut(caixa_ret(EX0 - 5, -PX + USB_BOCA_X, USB_Y0, USB_Y1, Z_TAMPA - 1, PROF + 1)
               .edges("|Z").fillet(3.0))

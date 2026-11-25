@@ -185,7 +185,7 @@ A_QUEBRA = 50.0         # y onde a parede de tras muda de inclinacao
 A_PAREDE = 2.6
 A_PAINEL_E = 3.5        # espessura do painel frontal
 A_FUNDO_E = 3.0
-A_PARAF = [(-31.0, -31.0), (31.0, -31.0), (-31.0, 34.5), (31.0, 34.5)]      # (u, v) no painel
+A_PARAF = [(-31.0, -30.0), (31.0, -30.0), (-31.0, 33.0), (31.0, 33.0)]      # (u, v) no painel; 6 mm das bordas
 A_PARAF_FUNDO = [(-30.3, 8.8), (30.3, 8.8), (-30.3, 49.0), (30.3, 49.0)]    # (x, y) na base
 
 
