@@ -2,9 +2,12 @@
 """
 Caixa tipo moldura para o painel Waveshare ESP32-S3-Touch-LCD-7 (800x480) + duas bases.
 
-Gera 4 STLs (pasta ./stl), ja na posicao de impressao:
-  moldura.stl             frente: moldura + paredes (a tela entra por tras)
-  tampa.stl               tampa traseira com os postes que prendem o painel
+Gera 6 STLs (pasta ./stl), ja na posicao de impressao:
+  moldura.stl             frente: moldura + paredes (a tela entra por tras); a tampa fecha com
+                          parafusos M3 que abrem rosca no plastico
+  moldura_inserto.stl     mesma moldura, com alojamento para inserto a quente M3 nos 4 pontos
+  tampa.stl               tampa traseira com os postes que prendem o painel (base presa com porca M3)
+  tampa_inserto.stl       mesma tampa, com alojamento para inserto a quente M3 no lugar da porca
   base_porta_retrato.stl  base simples tipo porta-retrato (berco inclinado 15 graus)
   base_monitor.stl        base tipo monitor (pescoco + sapata, inclinada 10 graus)
 
@@ -56,8 +59,8 @@ FOLGA = 0.4             # folga por lado entre painel e moldura
 MARGEM_JANELA = 1.2     # quanto a abertura da moldura passa da area visivel, por lado
 LABIO = 1.6             # espessura da moldura na frente do vidro
 FOLGA_VIDRO = 0.4       # folga entre a moldura e o vidro
-PAREDE = 2.4            # parede mais fina (lado direito)
-PAREDE_FLAT = 1.8       # parede abaixo do alivio do cabo flat
+PAREDE = 3.2            # parede mais fina (lado direito); define a largura da moldura
+PAREDE_FLAT = 2.0       # parede abaixo do alivio do cabo flat
 TAMPA = 2.0             # espessura da tampa traseira
 FOLGA_COMP = 1.0        # folga atras dos componentes (cobre erro de medida)
 RAIO_EXT = 4.0          # raio dos cantos externos
@@ -77,6 +80,15 @@ PORCA_AF = 5.7          # porca M3 (5,5 entre faces) + folga
 PORCA_H = 2.6
 BOSS_D = 12.0
 BOSS_H = 2.5
+# alternativa a porca: inserto roscado a quente M3 x 5 (comprimento) x 4,5 (diametro externo),
+# colocado por DENTRO da tampa; o parafuso da base entra por fora e puxa o inserto contra a tampa
+INSERTO_L = 5.0
+INSERTO_D = 4.5
+INSERTO_FURO = 4.0      # furo para o inserto (diametro externo - 0,5)
+INSERTO_FOLGA = 0.6     # espaco extra no fundo para o plastico deslocado
+INSERTO_PAREDE = 2.25   # plastico em volta do inserto
+INSERTO_FLANGE = 0.8    # plastico da tampa que fica entre o inserto e a face de fora
+INSERTO_PROF_MOLDURA = 9.0  # furo do inserto na moldura (inserto + espaco p/ a ponta do parafuso)
 
 # --------------------------------------------------------------------------
 # derivados (vista de frente)
@@ -105,9 +117,10 @@ Z_TAMPA = Z_VIDRO + ALTURA_TOTAL + FOLGA_COMP         # face interna da tampa
 PROF = Z_TAMPA + TAMPA                                # profundidade total
 
 POSTES = [(sx * FURO_DX / 2, y) for sx in (-1, 1) for y in (PY - ABA_TOPO, -PY + ABA_BAIXO)]
-# 4 parafusos que fecham a tampa na moldura (nas paredes grossas de cima e de baixo)
-FECHO = [(EX0 + 4.2, EY1 - 3.7), (EX1 - 5.0, EY1 - 3.7),
-         (EX0 + 4.2, EY0 + 3.7), (EX1 - 5.0, EY0 + 3.7)]
+# 4 parafusos que fecham a tampa na moldura (no meio das paredes grossas de cima e de baixo)
+FECHO_YT, FECHO_YB = EY1 - (EY1 - CY1) / 2, EY0 + (CY0 - EY0) / 2
+FECHO = [(EX0 + 3.9, FECHO_YT), (EX1 - 5.0, FECHO_YT),
+         (EX0 + 3.9, FECHO_YB), (EX1 - 5.0, FECHO_YB)]
 USB_Y0, USB_Y1 = PY - USB_TOPO_MAX, PY - USB_TOPO_MIN
 V_FURO_BASE = BASE_FURO_Y - EY0                       # altura dos furos da base acima do fundo
 
@@ -130,7 +143,8 @@ def cil(x, y, z0, z1, d):
 # --------------------------------------------------------------------------
 # MOLDURA (frente + paredes) -- imprimir com a face da frente na mesa
 # --------------------------------------------------------------------------
-def moldura():
+def moldura(inserto=False):
+    """inserto=False: furo-guia para parafuso abrir rosca; inserto=True: inserto a quente M3."""
     m = caixa_ret(EX0, EX1, EY0, EY1, 0, Z_TAMPA).edges("|Z").fillet(RAIO_EXT)
     m = m.faces("<Z").edges().chamfer(0.8)
     # abertura da tela, chanfrada para fora
@@ -148,32 +162,52 @@ def moldura():
     m = m.cut(caixa_ret(EX0 - 1, CX0 + 1, USB_Y0, USB_Y1, Z_CHAPA + 2.0, Z_TAMPA + 1))
     # furos-guia para os 4 parafusos da tampa
     for (x, y) in FECHO:
-        m = m.cut(cil(x, y, Z_TAMPA - FURO_GUIA_PROF, Z_TAMPA + 1, FURO_GUIA))
+        if inserto:
+            m = m.cut(cil(x, y, Z_TAMPA - INSERTO_PROF_MOLDURA, Z_TAMPA + 1, INSERTO_FURO))
+            guia = cq.Solid.makeCone(INSERTO_FURO / 2 + 0.4, INSERTO_FURO / 2, 0.4,
+                                     pnt=cq.Vector(-x, y, Z_TAMPA + 0.01), dir=cq.Vector(0, 0, -1))
+            m = m.cut(cq.Workplane("XY").add(guia))
+        else:
+            m = m.cut(cil(x, y, Z_TAMPA - FURO_GUIA_PROF, Z_TAMPA + 1, FURO_GUIA))
     return m
 
 
 # --------------------------------------------------------------------------
 # TAMPA TRASEIRA -- imprimir com a face de fora na mesa
 # --------------------------------------------------------------------------
-def tampa():
+def tampa(inserto=False):
+    """inserto=False: porca M3 presa por dentro; inserto=True: inserto a quente M3."""
+    if inserto:
+        prof_furo = INSERTO_L + INSERTO_FOLGA
+        boss_h = INSERTO_FLANGE + prof_furo - TAMPA
+        boss_d = INSERTO_D + 2 * INSERTO_PAREDE
+    else:
+        boss_h, boss_d = BOSS_H, BOSS_D
     t = caixa_ret(EX0, EX1, EY0, EY1, Z_TAMPA, PROF).edges("|Z").fillet(RAIO_EXT)
     t = t.faces(">Z").edges().chamfer(0.5)
     for (x, y) in POSTES:
         t = t.union(cil(x, y, Z_ABA, Z_TAMPA + 0.01, POSTE_D))
     furos_b = [(XC - BASE_FURO_DX, BASE_FURO_Y), (XC + BASE_FURO_DX, BASE_FURO_Y)]
     for (x, y) in furos_b:
-        t = t.union(cil(x, y, Z_TAMPA - BOSS_H, Z_TAMPA + 0.01, BOSS_D))
+        t = t.union(cil(x, y, Z_TAMPA - boss_h, Z_TAMPA + 0.01, boss_d))
     # postes: rebaixo por fora + membrana + furo passante
     z_reb = Z_ABA + PISO_POSTE
     for (x, y) in POSTES:
         t = t.cut(cil(x, y, z_reb, PROF + 1, REBAIXO_D))
         t = t.cut(cil(x, y, Z_ABA - 1, z_reb - MEMBRANA, FURO_D))
-    # furos das bases + alojamento sextavado das porcas (por dentro)
+    # furos das bases + alojamento da porca ou do inserto (por dentro)
     for (x, y) in furos_b:
-        t = t.cut(cil(x, y, Z_TAMPA - BOSS_H - 1, PROF + 1, 3.4))
-        hexa = (cq.Workplane("XY").workplane(offset=Z_TAMPA - BOSS_H - 1).center(-x, y)
-                .polygon(6, PORCA_AF / math.cos(math.pi / 6)).extrude(PORCA_H + 1))
-        t = t.cut(hexa)
+        t = t.cut(cil(x, y, Z_TAMPA - boss_h - 1, PROF + 1, 3.4))
+        if inserto:
+            z_topo = Z_TAMPA - boss_h
+            t = t.cut(cil(x, y, z_topo - 1, PROF - INSERTO_FLANGE, INSERTO_FURO))
+            guia = cq.Solid.makeCone(INSERTO_FURO / 2 + 0.4, INSERTO_FURO / 2, 0.4,
+                                     pnt=cq.Vector(-x, y, z_topo - 0.01), dir=cq.Vector(0, 0, 1))
+            t = t.cut(cq.Workplane("XY").add(guia))
+        else:
+            hexa = (cq.Workplane("XY").workplane(offset=Z_TAMPA - boss_h - 1).center(-x, y)
+                    .polygon(6, PORCA_AF / math.cos(math.pi / 6)).extrude(PORCA_H + 1))
+            t = t.cut(hexa)
     # 4 parafusos de fechamento: furo passante + escareado por fora
     for (x, y) in FECHO:
         t = t.cut(cil(x, y, Z_TAMPA - 1, PROF + 1, FURO_D))
@@ -326,18 +360,22 @@ def main():
     ref = os.path.join(aqui, "_ref")
     os.makedirs(saida, exist_ok=True)
     os.makedirs(ref, exist_ok=True)
-    mo, ta = moldura(), tampa()
+    mo, ta, ti, mi = moldura(), tampa(), tampa(inserto=True), moldura(inserto=True)
     b1, q1 = base_porta_retrato()
     b2, q2 = base_monitor()
     lcd, pcb = painel_ref()
     area = area_ref()
     exp = dict(tolerance=0.02, angularTolerance=0.15)
     cq.exporters.export(mo, os.path.join(saida, "moldura.stl"), **exp)
+    cq.exporters.export(mi, os.path.join(saida, "moldura_inserto.stl"), **exp)
     cq.exporters.export(para_impressao_tampa(ta), os.path.join(saida, "tampa.stl"), **exp)
+    cq.exporters.export(para_impressao_tampa(ti), os.path.join(saida, "tampa_inserto.stl"), **exp)
     cq.exporters.export(b1, os.path.join(saida, "base_porta_retrato.stl"), **exp)
     cq.exporters.export(b2, os.path.join(saida, "base_monitor.stl"), **exp)
 
     # arquivos de conferencia (montagens) -> pasta separada, nao imprimir
+    cq.exporters.export(ti, os.path.join(ref, "tampa_inserto.stl"), **exp)
+    cq.exporters.export(mi, os.path.join(ref, "moldura_inserto.stl"), **exp)
     pecas = {"moldura": mo, "tampa": ta, "lcd": lcd, "pcb": pcb, "area": area}
     for n, s in pecas.items():
         cq.exporters.export(s, os.path.join(ref, f"{n}.stl"), **exp)
@@ -355,6 +393,10 @@ def main():
     print(f"Postes: {Z_TAMPA - Z_ABA:.1f} mm; rebaixo {PROF - Z_ABA - PISO_POSTE:.1f} mm de profundidade")
     print(f"Interferencias (mm3): moldura x painel {vol(mo, lcd):.3f}; tampa x painel {vol(ta, lcd):.3f}; "
           f"moldura x tampa {vol(mo, ta):.3f}; tampa x placa {vol(ta, pcb):.3f}; moldura x placa {vol(mo, pcb):.3f}")
+    print(f"Tampa com inserto (mm3): x painel {vol(ti, lcd):.3f}; x moldura {vol(mo, ti):.3f}; x placa {vol(ti, pcb):.3f}; "
+          f"ressalto {INSERTO_D + 2 * INSERTO_PAREDE:.1f} mm de diametro, "
+          f"{INSERTO_FLANGE + INSERTO_L + INSERTO_FOLGA - TAMPA:.1f} mm de altura por dentro")
+    print(f"Moldura com inserto (mm3): x painel {vol(mi, lcd):.3f}; x tampa {vol(mi, ti):.3f}")
     cx = mo.union(ta)
     for nome, b, qd in (("porta_retrato", b1, q1), ("monitor", b2, q2)):
         print(f"Interferencia base {nome} x caixa: {vol(b, caixa_no_quadro(cx, qd)):.3f} mm3; "
