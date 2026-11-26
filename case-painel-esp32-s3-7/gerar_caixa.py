@@ -125,6 +125,7 @@ USB_Y0, USB_Y1 = PY - USB_TOPO_MAX, PY - USB_TOPO_MIN
 V_FURO_BASE = BASE_FURO_Y - EY0                       # altura dos furos da base acima do fundo
 
 LARG_BASE = 110.0       # largura das duas bases
+ESCAREADO_D = 6.4       # escareado a 90 graus para parafuso M3 de cabeca chata (cabeca de ~6 mm)
 FOLGA_BERCO = 0.6
 
 
@@ -266,7 +267,7 @@ def arredonda(solido, pontos, raio, tol=0.6):
 
 
 def furos_base(solido, quadro, esp_placa):
-    """Furos passantes M3 na placa que encosta na tampa."""
+    """Furos passantes M3 na placa que encosta na tampa, escareados por tras (cabeca chata)."""
     c, s = math.cos(quadro.t), math.sin(quadro.t)
     for sx in (-1, 1):
         z = LARG_BASE / 2 + sx * BASE_FURO_DX
@@ -274,6 +275,10 @@ def furos_base(solido, quadro, esp_placa):
         furo = (cq.Workplane(cq.Plane(origin=(p0[0], p0[1], z), xDir=(0, 0, 1), normal=(c, -s, 0)))
                 .circle(1.75).extrude(esp_placa + 4))
         solido = solido.cut(furo)
+        p1 = quadro.pq(esp_placa + 0.01, V_FURO_BASE)
+        esc = cq.Solid.makeCone(ESCAREADO_D / 2, 1.75, ESCAREADO_D / 2 - 1.75,
+                                pnt=cq.Vector(p1[0], p1[1], z), dir=cq.Vector(-c, s, 0))
+        solido = solido.cut(cq.Workplane("XY").add(esc))
     return solido
 
 

@@ -36,7 +36,8 @@ Parafusos:
 - 4 × M3×6 — tampa nas abas roscadas do painel. Não use mais comprido: pode encostar no LCD.
 - 4 × M3×8 ou M3×10 de cabeça abaulada (panela) — tampa na moldura. Os furos não são escareados: ficam a 3,75 mm da
   borda e um escareado não deixaria parede para imprimir. As cabeças ficam ~2,5 mm para fora, nos cantos de trás.
-- 2 × M3×10 ou M3×12 — base na tampa (opcional). Na versão sem inserto, use M3×12 com 2 porcas M3.
+- 2 × M3×10 ou M3×12 de cabeça chata — base na tampa (opcional). Os furos das bases são escareados por trás, então a
+  cabeça fica rente. Na versão sem inserto, use M3×12 com 2 porcas M3.
 
 ## Montagem
 
